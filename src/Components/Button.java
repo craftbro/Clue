@@ -10,6 +10,9 @@ import Util.Mouse;
 
 public class Button extends GComponent{
 
+	
+	//Test
+	
 	private String text;
 	private int textSize;
 	private Runnable click;
