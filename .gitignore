@@ -14,6 +14,8 @@ hs_err_pid*
 # various other potential build files
 
 bin
+build
+._crossdomain.xml
 .settings
 .classpath
 .project
