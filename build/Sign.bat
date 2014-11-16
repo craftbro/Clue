@@ -1,0 +1,1 @@
+jarsigner -keystore store Clue.jar ynte
