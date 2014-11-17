@@ -27,6 +27,7 @@ public class Packet01List extends Packet {
 			String[] ds = s.split(";");
 			String name = ds[0];
 			
+			
 			String[] cs = ds[1].split(":");
 			
 			int red = Integer.parseInt(cs[0]);
@@ -35,9 +36,7 @@ public class Packet01List extends Packet {
 			
 			Color c = new Color(red, green, blue);
 			
-			if(ds.length == 2){
-				list.add(new PlayerProfile(name, c, null));
-			}else{
+			if(ds.length > 3){
 				String[] cls = ds[2].split("/");
 				Color[] colors = new Color[4];
 				int cu = 0;
@@ -54,7 +53,10 @@ public class Packet01List extends Packet {
 					cu++;
 				}
 				
-				list.add(new PlayerProfile(name, c, colors));
+				
+				PlayerProfile p = new PlayerProfile(name, c, null);
+				p.setAlive(Boolean.parseBoolean(ds[ds.length-1]));
+				list.add(p);
 			}
 		}
 	}

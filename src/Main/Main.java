@@ -53,7 +53,7 @@ public class Main extends Applet implements Runnable, KeyListener{
 		if(running) return;
 		running = true;
 		
-		client = new GameClient(this, super.getParameter("ServerIP"));
+		client = new GameClient(this, "localhost");
 		client.start();
 		
 		imageloader = new ImageLoader();

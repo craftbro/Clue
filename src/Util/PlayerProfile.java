@@ -8,6 +8,7 @@ public class PlayerProfile{
 	private String name;
 	private Color c;
 	private int points = 0;
+	private boolean alive = true;
 	
 	private Color[] clothing;
 	
@@ -36,5 +37,14 @@ public class PlayerProfile{
 	public int getPoints(){
 		return points;
 	}
+
+	public boolean isAlive(){
+		return alive;
+	}
+	
+	public void setAlive(boolean a){
+		alive = a;
+	}
+	
 	
 }

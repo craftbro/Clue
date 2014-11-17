@@ -17,7 +17,8 @@ public abstract class GameState {
 	public GameState(GameStateManager gsm){
 		this.gsm = gsm;
 	}
-
+	
+	
 	public abstract void init();
 	public abstract void update();
 	public abstract void draw(Graphics2D g);

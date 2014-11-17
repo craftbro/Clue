@@ -28,6 +28,8 @@ public class PlayState extends GameState{
 	private BufferedImage knife = Main.Main.imageloader.loadImage("Knife.png");
 	private boolean drawMurdSelect = false;
 	
+	private boolean dead = false;
+	
 	private Minigame cm = null;
 	private String winner = "[ERROR]";
 	private String end = "EIND TEXT HIER";
@@ -70,7 +72,17 @@ public class PlayState extends GameState{
 
 	@Override
 	public void update(){
+		boolean d = !Stats.localProfile.isAlive();
 		
+		if(d != dead){
+			if(dead){
+				Main.Main.bg.setMurdered();
+			}else{
+				Main.Main.bg.setNormal();
+			}
+		}
+		
+		dead = d;
 	}
 	
 	@Override
@@ -82,8 +94,10 @@ public class PlayState extends GameState{
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.setColor(Main.Main.bg.getColor());
-		g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
+		if(!dead){
+			g.setColor(Main.Main.bg.getColor());
+			g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
+		}
 		
 		g.setColor(new Color(40, 40, 40, 185));
 		g.fillRect(0, 0, Main.Main.WIDTH, 75);
@@ -250,6 +264,8 @@ public class PlayState extends GameState{
 		int x=100;
 		int y=250;
 		
+		int x1=x;
+		int y1=y;
 
 		for(PlayerProfile p : Stats.Connected){
 
@@ -257,7 +273,9 @@ public class PlayState extends GameState{
 			ClothingDisplay d = new ClothingDisplay(x,y,p);
 			cds.put(p, d);
 			
-			final PlayerButton b =  new PlayerButton(x, y, p.getName(),null);
+			if(!p.getName().contentEquals(Stats.localProfile.getName()) && p.isAlive()){
+			
+			final PlayerButton b =  new PlayerButton(x1, y1, p.getName(),null);
 			
 			b.setClick( new Runnable(){
 				@Override
@@ -267,6 +285,10 @@ public class PlayState extends GameState{
 			});
 			
 			buttons.put(p, b);
+			
+			x1+=150;
+			if(x1>700) y1+=50;
+			}
 			
 			x+=50;
 			if(x>700) y+=150;
@@ -358,6 +380,7 @@ public class PlayState extends GameState{
 		}
 		break;
 		case VICTIM:{
+			if(msg.contentEquals(Stats.localProfile.getName())) msg = "Jij";
 			text = msg+" is vermoord!";
 			disC = Color.red;
 			textSize = 40;
