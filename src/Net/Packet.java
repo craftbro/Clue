@@ -3,7 +3,7 @@ package Net;
 public abstract class Packet {
 
 	public static enum PacketType{
-		INVALID(-1), CONNECT(00), LIST(01), START(02), MINIGAME(03), WIN(04), WINNER(05), POINTS(06), END(07), MURDERER(10), HINT(11), VICTIM(12);
+		INVALID(-1), CONNECT(00), LIST(01), START(02), MINIGAME(03), WIN(04), WINNER(05), POINTS(06), END(07), MURDERER(10), HINT(11), VICTIM(12), CHOICE(13), STARTCHOICE(14);
 		
 		private int id;
 		

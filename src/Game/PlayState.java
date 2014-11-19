@@ -29,6 +29,7 @@ public class PlayState extends GameState{
 	private boolean drawMurdSelect = false;
 	
 	private boolean dead = false;
+	private boolean choice = false;
 	
 	private Minigame cm = null;
 	private String winner = "[ERROR]";
@@ -75,7 +76,8 @@ public class PlayState extends GameState{
 		boolean d = !Stats.localProfile.isAlive();
 		
 		if(d != dead){
-			if(dead){
+			System.out.println("dead");
+			if(!dead){
 				Main.Main.bg.setMurdered();
 			}else{
 				Main.Main.bg.setNormal();
@@ -94,10 +96,9 @@ public class PlayState extends GameState{
 
 	@Override
 	public void draw(Graphics2D g) {
-		if(!dead){
 			g.setColor(Main.Main.bg.getColor());
 			g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
-		}
+		
 		
 		g.setColor(new Color(40, 40, 40, 185));
 		g.fillRect(0, 0, Main.Main.WIDTH, 75);
@@ -120,13 +121,35 @@ public class PlayState extends GameState{
 				g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
 				
 				if(buttons.containsKey(p)) buttons.get(p).draw(g);
-				
-				g.setFont(new Font("Modern No. 20", Font.BOLD, 30));
-			
-				g.setColor(Color.white);
-				
-				Util.drawCompact(g, "Jij hebt de Minigame gewonnen! Nu kan je iemand vermoorden, maar wie?", 400, 200);
 			}
+			
+			
+			g.setFont(new Font("Modern No. 20", Font.BOLD, 30));
+		
+			g.setColor(Color.white);
+			
+			Util.drawCompact(g, "Jij hebt de Minigame gewonnen! Nu kan je iemand vermoorden, maar wie?", 400, 200);
+		}else if(choice){
+			g.setColor(new Color(20, 20, 20, 140));
+			g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
+			
+			int x=100;
+			int y=250;
+			
+			for(PlayerProfile p : cds.keySet()){
+				
+				g.setColor(new Color(20, 20, 20, 140));
+				g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
+				
+				if(buttons.containsKey(p)) buttons.get(p).draw(g);
+			}
+			
+			
+			g.setFont(new Font("Modern No. 20", Font.BOLD, 30));
+		
+			g.setColor(Color.white);
+			
+			Util.drawCompact(g, "Wie denk je dat de moordenaar is?", 400, 200);
 		}else{
 		
 		if(cm != null){
@@ -197,9 +220,9 @@ public class PlayState extends GameState{
 			int x=100;
 			int y=250;
 			
-			for(PlayerProfile p : cds.keySet()){
+			for(PlayerProfile p : Stats.Connected){
 				
-				cds.get(p).draw(g);
+				Util.drawClothes(g, p, x, y);
 				
 				g.setFont(new Font("Modern No. 20", Font.PLAIN, 20));
 				
@@ -241,9 +264,15 @@ public class PlayState extends GameState{
 	}
 	
 	public void selectPlayer(PlayerButton b){
-		drawMurdSelect = false;
-		Main.Main.client.sendData(("12"+b.getName()).getBytes());
-		System.out.print("Chose: "+b.getName());
+		if(murd && choice){
+			drawMurdSelect = false;
+			Main.Main.client.sendData(("12"+b.getName()).getBytes());
+			System.out.print("Chose: "+b.getName());
+		}else if(choice){
+			Main.Main.client.sendData(("13"+Stats.localProfile.getName()+","+b.getName()).getBytes());
+			
+			choice = false;
+		}
 	}
 
 	@Override
@@ -258,6 +287,8 @@ public class PlayState extends GameState{
 	
 	private void setupClothingDisplays(){
 		cds.clear();
+		
+		pd = new ClothingDisplay(756, 0, Stats.localProfile);
 		
 	//	cds.put(Stats.localProfile, new ClothingDisplay(100,250,Stats.localProfile));
 		
@@ -327,10 +358,11 @@ public class PlayState extends GameState{
 		}
 		break;
 		case END:{
-			text = end;
+			text = "De mordenaar was "+msg;
 			disC = Color.red;
 			textSize = 30;
 			disText = 400;
+			disHint = 0;
 		}
 		break;
 		case START:{
@@ -385,6 +417,10 @@ public class PlayState extends GameState{
 			disC = Color.red;
 			textSize = 40;
 			disText = 400;
+		}
+		break;
+		case STARTCHOICE:{
+			if(!murd) choice = true;
 		}
 		break;
 		}

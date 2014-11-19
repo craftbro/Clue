@@ -36,9 +36,11 @@ public class Packet01List extends Packet {
 			
 			Color c = new Color(red, green, blue);
 			
+			Color[] colors = null;
+			
 			if(ds.length > 3){
 				String[] cls = ds[2].split("/");
-				Color[] colors = new Color[4];
+				colors = new Color[4];
 				int cu = 0;
 				
 				for(String ss : cls){
@@ -52,12 +54,13 @@ public class Packet01List extends Packet {
 					colors[cu] = new Color(red1, green1, blue1);
 					cu++;
 				}
+			}
 				
 				
-				PlayerProfile p = new PlayerProfile(name, c, null);
+				PlayerProfile p = new PlayerProfile(name, c, colors);
 				p.setAlive(Boolean.parseBoolean(ds[ds.length-1]));
 				list.add(p);
-			}
+			
 		}
 	}
 	
