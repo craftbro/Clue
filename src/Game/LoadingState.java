@@ -71,7 +71,7 @@ public class LoadingState extends GameState{
 		if(addX > 0){
 			g.setColor(new Color(255, 255, 255, 255));
 			
-			if(addX == 405) drawSend = true;
+	
 			
 			if(addX < aw+200){
 				g.fillRect(200, 150, 200-addX, 10);
@@ -82,21 +82,7 @@ public class LoadingState extends GameState{
 			}
 		}
 		
-		if(drawSend){
-			
-			sendA-=3;
-			
-			if(sendA <= 40){
-				sendA = 254;
-				drawSend = false;
-			}
-			
-			g.setColor(new Color(255, 255, 255, sendA));
-			
-			int width = (255-sendA)+10;
-			
-			g.fillRect(405-(width/2), 150-(width/2), width, width);
-		}
+		
 		
 		int x = 290;
 		int y = 250;

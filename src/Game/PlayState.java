@@ -8,12 +8,14 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import Components.Button;
 import Components.ClothingDisplay;
 import Components.PlayerButton;
 import Minigame.Minigame;
 import Net.Packet.PacketType;
 import Net.Packet03Minigame;
 import Net.Packet11Hint;
+import Util.Mouse;
 import Util.PlayerProfile;
 import Util.Stats;
 import Util.Util;
@@ -22,10 +24,13 @@ public class PlayState extends GameState{
 	
 	private ClothingDisplay pd;
 	private Rectangle rec;
+	private Rectangle rec1;
 	private boolean down = false;
+	private boolean down1 = false;
 	
 	private boolean murd = false;
 	private BufferedImage knife = Main.Main.imageloader.loadImage("Knife.png");
+	private BufferedImage scoreboard = Main.Main.imageloader.loadImage("Scoreboard.png");
 	private boolean drawMurdSelect = false;
 	
 	private boolean dead = false;
@@ -33,13 +38,13 @@ public class PlayState extends GameState{
 	
 	private Minigame cm = null;
 	private String winner = "[ERROR]";
-	private String end = "EIND TEXT HIER";
+	private String end = "Einde";
 	private String murdText = "Jij bent de Moordenaar!";
 	
 	int disMurd = 0;
 	int disWinner = 0;
 	int disEnd = 0;
-	
+	Button b;
 	int disText;
 	
 	String text;
@@ -65,10 +70,26 @@ public class PlayState extends GameState{
 	public void init() {
 		pd = new ClothingDisplay(756, 0, Stats.localProfile);
 		rec = new Rectangle(753, 2, 39, 57+15);
+		rec1 = new Rectangle(683, 2, 70, 70);
 		cm = null;
 		murd = false;
+		down = false;
+		down1 = false;
+		cd = 0;
+		count = 0;
+		disText = 0;
+		disHint = 0;
+		
 		
 		this.setupClothingDisplays();
+		
+		
+		b = new Button(400, 400, "Oke", 30, true, new Runnable(){
+			@Override
+			public void run(){
+				disText = 0;
+			}
+		});
 	}
 
 	@Override
@@ -89,9 +110,9 @@ public class PlayState extends GameState{
 	
 	@Override
 	public void updateSec() {
-		if(cd > 0){
-			cd--;
-		}
+//		if(cd > 0){
+//			cd--;
+//		}
 	}
 
 	@Override
@@ -105,6 +126,7 @@ public class PlayState extends GameState{
 	
 		if(pd != null) pd.draw(g);
 		
+		g.drawImage(scoreboard, 686, 5, 64, 64, null);
 		if(murd) g.drawImage(knife, 20, 5, 64, 64, null);
 		
 		
@@ -184,11 +206,13 @@ public class PlayState extends GameState{
 			
 			g.setFont(new Font("Modern No. 20", Font.PLAIN, 20));
 			
-			Util.drawCompact(g, "De Mordenaar heeft "+slotName+" aan:", 400, 200);
+			Util.drawCompact(g, "De Moordenaar heeft "+slotName+" aan:", 400, 200);
 			
 			g.drawImage(hintImg, 336, 240, 128, 128, null);
 		}else 			
 			if(disText > 0){
+				
+				b.draw(g);
 
 				g.setFont(new Font("Modern No. 20", Font.BOLD, textSize));
 				
@@ -199,18 +223,26 @@ public class PlayState extends GameState{
 				int w = g.getFontMetrics().stringWidth(text)/2;
 				
 				g.drawString(text, 400-w, 300);
-				
-				disText -= 1;
+
 			}
 		
 		
 		if(!down && Main.Main.mouse != null &&
-				rec.contains(Main.Main.mouse.getMouseLocation())){
+				rec.contains(Mouse.getMouseLocation())){
 			down = true;
 
 		}else if(down && 
-				!rec.contains(Main.Main.mouse.getMouseLocation())){
+				!rec.contains(Mouse.getMouseLocation())){
 			down = false;
+		}
+		
+		if(!down1 && Main.Main.mouse != null &&
+				rec1.contains(Mouse.getMouseLocation())){
+			down1 = true;
+
+		}else if(down1 && 
+				!rec1.contains(Mouse.getMouseLocation())){
+			down1 = false;
 		}
 		
 		if(down){
@@ -253,18 +285,47 @@ public class PlayState extends GameState{
 			cds.clear();
 			
 			this.setupClothingDisplays();
+		}else if(down1){
+			g.setColor(new Color(20, 20, 20, 140));
+			g.fillRect(0, 0, Main.Main.WIDTH, Main.Main.HEIGHT);
+			
+			int y=0;
+			
+			g.setColor(Color.WHITE);
+			
+			for(PlayerProfile p : Stats.Connected){
+				g.setFont(new Font("Modern No. 20", Font.BOLD, 20));
+				
+				String draw = p.getName()+": "+p.getPoints();
+				
+				Util.drawCompact(g, draw, 400, 100+y);
+				
+					y+=30;
+			}
 		}
 		
 		}
 		
+	}
+	
+	private boolean anyoneAlive(){
+		boolean t = false;
+		
+		for(PlayerProfile p : Stats.Connected){
+			if(p.getName().contentEquals(Stats.localProfile.getName()) || !p.isAlive()) continue;
+			t = true;
+			break;
+		}
+		
+		return t;
 	}
 	
 	public void murdWin(){
-		drawMurdSelect = true;
+		if(anyoneAlive()) drawMurdSelect = true;
 	}
 	
 	public void selectPlayer(PlayerButton b){
-		if(murd && choice){
+		if(murd && !choice){
 			drawMurdSelect = false;
 			Main.Main.client.sendData(("12"+b.getName()).getBytes());
 			System.out.print("Chose: "+b.getName());
@@ -348,17 +409,22 @@ public class PlayState extends GameState{
 			
 			winner = msg+" heeft gewonnen!";
 			
-			if(msg.contentEquals("De Mordenaar") && murd) murdWin();
 			
 			text = winner;
 			disC = Color.green;
 			textSize = 20;
 			
+			if(msg.contentEquals("De Moordenaar") && murd){
+				murdWin();
+			}else if(msg.contentEquals(Stats.localProfile.getName()) && dead){
+				text = "Je leeft weer!";
+			}
+
 			disText = 400;
 		}
 		break;
 		case END:{
-			text = "De mordenaar was "+msg;
+			text = "De Moordenaar was "+msg;
 			disC = Color.red;
 			textSize = 30;
 			disText = 400;
@@ -417,10 +483,15 @@ public class PlayState extends GameState{
 			disC = Color.red;
 			textSize = 40;
 			disText = 400;
+			disHint = 0;
 		}
 		break;
 		case STARTCHOICE:{
 			if(!murd) choice = true;
+		}
+		break;
+		case COUNTDOWN:{
+			cd = Integer.parseInt(msg);
 		}
 		break;
 		}

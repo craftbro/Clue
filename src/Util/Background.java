@@ -34,12 +34,12 @@ public class Background {
 		}else{
 			count++;
 		}
-		}else if(blue > 0) blue--;
-		
+		}else if(blue > 20) blue-=4;
+		else if(blue > 0) blue--;
 		if(murd){	
 			if(targetRed == red){
-				targetRed = r.nextInt(50)+200;
-			}else if(count == 10){
+				targetRed = r.nextInt(50)+185;
+			}else if(count == (red>180?10:3)){
 				if(targetRed > red){
 					red++;
 				}else{
@@ -49,18 +49,21 @@ public class Background {
 			}else{
 				count++;
 			}
+		}else if(red > 20){
+			red-=4;
 		}else if(red > 0){
 			red--;
 		}
 		
-		int g = red>51?0:51-red;
-		
+		int g = red>51?0:50-red;
+			
 		background = new Color(red, g, blue);
 	}
 	
 	public void setMurdered(){
 		System.out.println("murd");
 		murd = true;
+		count = 0;
 		targetBlue = 0;
 		targetRed = r.nextInt(50)+185;
 	}

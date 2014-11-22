@@ -13,7 +13,8 @@ public abstract class Minigame {
 
 	//Global Game Managing
 	private static HashMap<String, Minigame> games = new HashMap<String, Minigame>();
-	private static Object[] gameNames = {"Math", new MinigameMath()};
+	//private static Object[] gameNames = {"Math", new MinigameRobber()};
+	private static Object[] gameNames = {"Math", new MinigameMath(), "Colors", new MinigameColors(), "Flames", new MinigameFlames(), "Copy", new MinigameCopy(), "Upsidedown", new MinigameUpsidedown(), "More", new MinigameMore(), "Robber", new MinigameRobber()};
 	
 	//Variables
 	private String name;
@@ -59,6 +60,7 @@ public abstract class Minigame {
 				name = (String)o;
 			}else{
 				games.put(name, (Minigame)o);
+				name = null;
 			}
 		}
 	}

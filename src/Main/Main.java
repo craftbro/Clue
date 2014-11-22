@@ -20,9 +20,9 @@ public class Main extends Applet implements Runnable, KeyListener{
 	//Game Thread
 	Thread thread;
 	private boolean running = false;;
-	private int FPS = 4;
-	private long targetTime = (1/FPS)*1000000000;
-	long startc = System.nanoTime();
+	private int FPS = 2000;
+	private double skipTicks = 1e+9 / FPS;
+	private long startSec = System.currentTimeMillis();
 	
 	//Double Buffering
 	private Image i;
@@ -53,8 +53,6 @@ public class Main extends Applet implements Runnable, KeyListener{
 		if(running) return;
 		running = true;
 		
-		client = new GameClient(this, "localhost");
-		client.start();
 		
 		imageloader = new ImageLoader();
 		mouse = new Mouse();
@@ -67,6 +65,9 @@ public class Main extends Applet implements Runnable, KeyListener{
 		addMouseListener(mouse);
 		addMouseMotionListener(mouse);
 		addKeyListener(this);
+		
+		client = new GameClient(this, this.getParameter("ServerIP"));
+		client.start();
 		
 		thread = new Thread(this);
 		thread.start();
@@ -111,44 +112,45 @@ public class Main extends Applet implements Runnable, KeyListener{
 	public void paint(Graphics g1){
 		Graphics2D g = (Graphics2D) g1;
 		
-		gsm.draw(g);
+		if(g!=null && gsm != null) gsm.draw(g);
 	}
 	
 	
 	@Override
 	public void run() {
-		
 		long start = System.nanoTime();
-		long elapsed;
-		long wait;
-		
-	
+		long elapsed = 0;
+		long wait = 0;
+
 		
 		while(running){
 			
 			
 			start = System.nanoTime();
-	
-			if(System.nanoTime()-startc >= 1000000000){
-				startc = System.nanoTime();
-				updateSec();
-			}
 			
 			repaint();
 			
-			elapsed = ( System.nanoTime() - start);
+			elapsed = System.nanoTime() - start;
 			
-			wait = 0;
+			wait = (long) (skipTicks - elapsed);
 			
-			if(elapsed < targetTime) wait = targetTime - elapsed;
-
 			
-			try {
-				Thread.sleep(wait+2);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			
+			if(System.nanoTime()-startSec >= 1e+9){
+				updateSec();
+				startSec = System.nanoTime();
 			}
 			
+		//	System.out.println("wait: "+wait+", skipTicks: "+skipTicks+", elapsed: "+elapsed);
+			
+			if(wait>0)
+				try {
+					Thread.sleep((long) (wait/1e+6));
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 		}
 		
 	}

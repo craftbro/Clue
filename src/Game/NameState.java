@@ -3,6 +3,7 @@ package Game;
 import java.awt.Color;
 
 
+
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
@@ -12,6 +13,7 @@ import Components.Button;
 import Components.TextBox;
 import Game.GameState;
 import Game.GameStateManager;
+
 import Net.Packet.PacketType;
 import Net.Packet00Connect;
 import Util.Vault;
@@ -36,8 +38,8 @@ public class NameState extends GameState{
 					Vault.store("name", box.getText());
 					System.out.println("Name stored in Vault! Sending connection packet...");
 					new Packet00Connect(box.getText()).writeData(Main.Main.client);
-					System.out.println("Switching to loadingstate!");
-					gsm.setState(GameStateManager.LOADINGSTATE);
+					System.out.println("Switching to loadingstate! (NOTICE)");
+					gsm.setState(GameStateManager.LOADINGSTATE);			
 				}else{
 					System.out.println("Text Box Empty");
 				}
@@ -68,12 +70,12 @@ public class NameState extends GameState{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		
+		this.updateTextBoxes(e);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		this.updateTextBoxes(e);
+		
 	}
 
 	@Override
